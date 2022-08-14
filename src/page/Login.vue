@@ -1,3 +1,14 @@
 <template>
-    hi 我是登录/注册页面
+  <div class="login">
+    test
+  </div>
 </template>
+
+<script>
+export default {
+  data () {
+    return {
+    }
+  }
+}
+</script>

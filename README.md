@@ -1,4 +1,4 @@
-# webdemo
+# customdemo
 
 ## Project setup
 ```
