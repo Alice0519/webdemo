@@ -4,6 +4,7 @@ import routes from "./router/index"
 import {createRouter,createWebHashHistory } from 'vue-router'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
+import './index.css'
 
 const router = createRouter({
     history: createWebHashHistory(),
