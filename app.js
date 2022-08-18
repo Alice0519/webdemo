@@ -1,0 +1,29 @@
+const Koa = require('koa')
+const app = new Koa()
+const json = require('koa-json')
+app.use(json())
+
+//配置路由模块
+const KoaRouter = require('koa-router')
+const router = new KoaRouter()
+
+app.use(router.routes()).use(router.allowedMethods())
+
+const bodyParser = require('koa-bodyparser')
+app.use(bodyParser())
+
+//配置静态资源
+const path = require('path')
+const _static = require('koa-static')
+const staticPath = './public'
+app.use(_static(
+    path.join(__dirname, staticPath)
+))
+
+router.get('/register',ctx=>{
+    ctx.body = 'register~'
+})
+
+app.listen(4000, () => {
+    console.log('app start~')
+})

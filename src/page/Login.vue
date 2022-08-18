@@ -147,6 +147,11 @@
         this.loginForm = this.initLoginForm
         this.$refs.loginForm.resetFields()
       }
+    },
+    created(){
+      this.$axios.get('register').then(res=>{
+        console.log(111,res)
+      })
     }
   }
 </script>
