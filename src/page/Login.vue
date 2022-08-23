@@ -140,7 +140,10 @@
     methods: {
       sure() {
         //this.type = 'login'
-        console.log('111 loginForm = ',this.loginForm)
+        
+        if(!this.$refs.loginForm.validate()){
+          console.log('111 loginForm = ',this.loginForm)
+        }
       },
       clear(type){
         this.type = type
