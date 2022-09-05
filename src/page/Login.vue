@@ -22,7 +22,7 @@
             <el-form-item v-if="type=='login'">
               <el-button @click="clear('forget')">忘记密码</el-button>
               <el-button @click="clear('register')">注册</el-button>
-              <el-button type="primary" @click="clear('login')">登录</el-button>
+              <el-button type="primary" @click="login">登录</el-button>
             </el-form-item>
             <el-form-item v-if="type!='login'">
               <el-button @click="clear('login')">取消</el-button>
@@ -138,8 +138,31 @@
       }
     },
     methods: {
+      login() {
+        let _this = this
+        _this.$refs.loginForm.validate((valid) => {
+          if (valid) {
+            let param = {
+              name: _this.loginForm.name,
+              password: crypto.encrypt(_this.loginForm.password)
+            }
+            
+            _this.$axios.post('/login', param).then((data) => {
+              this.$message({
+                message: data.message,
+                type: data.success ? 'success' : 'error'
+              })
+              if (data.success) {
+                alert('登录成功啦~')
+                _this.clear()
+              }
+            })
+          } else {
+            return false
+          }
+        })
+      },
       sure() {
-        //this.type = 'login'
         let _this = this
         _this.$refs.loginForm.validate((valid) => {
           if (valid) {
@@ -148,12 +171,12 @@
               email: _this.loginForm.email,
               password: crypto.encrypt(_this.loginForm.password)
             }
-            
+
             _this.$axios.post('/register', param).then((data) => {
               this.$message({
-                  message: data.message,
-                  type: data.success ? 'success' : 'error'
-                })
+                message: data.message,
+                type: data.success ? 'success' : 'error'
+              })
               if (data.success) {
                 this.clear('login')
               }
@@ -164,7 +187,10 @@
         })
       },
       clear(type) {
-        this.type = type
+        if(type){
+          this.type = type
+        }
+        
         this.loginForm = this.initLoginForm
         this.$refs.loginForm.resetFields()
       }
