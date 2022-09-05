@@ -13,7 +13,7 @@ _axios.interceptors.request.use(config=>{
 
 //添加响应拦截器
 _axios.interceptors.response.use(response=>{
-    return response
+    return response.data
 },error=>{
     return Promise.reject(error)
 })

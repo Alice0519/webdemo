@@ -3,7 +3,6 @@
     <el-col :span="8">
       <el-card :header="title">
         <el-image v-if="type=='login'" style="width: 100px;" :src="logoUrl" />
-        {{test}}
         <div>
           <el-form ref="loginForm" :model="loginForm" status-icon label-width="80px" :rules="rules">
             <el-form-item label="账户" prop="name" v-if="type !='forget'">
@@ -37,6 +36,7 @@
 </template>
 
 <script>
+  import crypto from '../crypto.js'
   const require = "必填"
   export default {
     data() {
@@ -59,7 +59,7 @@
           callback(new Error(this.loginFormPlaceholder.passPlaceholder))
         }
 
-        if(value != this.loginForm.password) callback(new Error(this.loginFormPlaceholder.confirmpassPlaceholder))
+        if (value != this.loginForm.password) callback(new Error(this.loginFormPlaceholder.confirmpassPlaceholder))
         callback()
       }
 
@@ -72,7 +72,7 @@
           password: "",
           confirmPassword: ""
         },
-        initLoginForm:{
+        initLoginForm: {
           name: "",
           email: "",
           password: "",
@@ -82,7 +82,7 @@
           namePlaceholder: "3-10个英文或中文字符",
           emailPlaceholder: "请输入正确邮箱地址",
           passPlaceholder: "6-12个英文和数字组成的字符",
-          confirmpassPlaceholder:"密码错误，请重新输入"
+          confirmpassPlaceholder: "密码错误，请重新输入"
         },
         rules: {
           name: [{
@@ -102,8 +102,8 @@
             },
             {
               type: 'email',
-              message:'请输入正确邮箱地址',
-              trigger: ['blur','change']
+              message: '请输入正确邮箱地址',
+              trigger: ['blur', 'change']
             },
           ],
           password: [{
@@ -123,7 +123,7 @@
             },
             {
               validator: validateConfirmpass,
-              trigger: ['blur','change']
+              trigger: ['blur', 'change']
             },
           ],
         }
@@ -140,21 +140,37 @@
     methods: {
       sure() {
         //this.type = 'login'
-        
-        if(!this.$refs.loginForm.validate()){
-          console.log('111 loginForm = ',this.loginForm)
-        }
+        let _this = this
+        _this.$refs.loginForm.validate((valid) => {
+          if (valid) {
+            let param = {
+              name: _this.loginForm.name,
+              email: _this.loginForm.email,
+              password: crypto.encrypt(_this.loginForm.password)
+            }
+            
+            _this.$axios.post('/register', param).then((data) => {
+              this.$message({
+                  message: data.message,
+                  type: data.success ? 'success' : 'error'
+                })
+              if (data.success) {
+                this.clear('login')
+              }
+            })
+          } else {
+            return false
+          }
+        })
       },
-      clear(type){
+      clear(type) {
         this.type = type
         this.loginForm = this.initLoginForm
         this.$refs.loginForm.resetFields()
       }
     },
-    created(){
-      this.$axios.get('register').then(res=>{
-        console.log(111,res)
-      })
+    created() {
+
     }
   }
 </script>
