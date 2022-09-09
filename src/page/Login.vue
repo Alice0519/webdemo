@@ -146,15 +146,16 @@
               name: _this.loginForm.name,
               password: crypto.encrypt(_this.loginForm.password)
             }
-            
+
             _this.$axios.post('/login', param).then((data) => {
-              this.$message({
-                message: data.message,
-                type: data.success ? 'success' : 'error'
-              })
               if (data.success) {
-                alert('登录成功啦~')
+                _this.$router.push('/user/list')
                 _this.clear()
+              } else {
+                this.$message({
+                  message: data.message,
+                  type: data.success ? 'success' : 'error'
+                })
               }
             })
           } else {
@@ -187,10 +188,10 @@
         })
       },
       clear(type) {
-        if(type){
+        if (type) {
           this.type = type
         }
-        
+
         this.loginForm = this.initLoginForm
         this.$refs.loginForm.resetFields()
       }
