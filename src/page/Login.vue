@@ -36,7 +36,8 @@
 </template>
 
 <script>
-  import crypto from '../crypto.js'
+  import crypto from '../utils/crypto'
+  import storage from '../utils/storage'
   const require = "必填"
   export default {
     data() {
@@ -142,6 +143,7 @@
         let _this = this
         _this.$refs.loginForm.validate((valid) => {
           if (valid) {
+            storage.remove('userInfo')
             let param = {
               name: _this.loginForm.name,
               password: crypto.encrypt(_this.loginForm.password)
@@ -149,6 +151,7 @@
 
             _this.$axios.post('/login', param).then((data) => {
               if (data.success) {
+                storage.set('userInfo',data.data.userInfo)
                 _this.$router.push('/user/list')
                 _this.clear()
               } else {

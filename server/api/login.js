@@ -25,7 +25,9 @@ async function login(ctx){
     await connection.end()
     ctx.body = {
         success: success,
-        data:{},
+        data:{
+            userInfo:rows[0]
+        },
         message:msg
     }
 }
