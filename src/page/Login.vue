@@ -19,6 +19,11 @@
               <el-input v-model="loginForm.confirmPassword" type="password"
                 :placeholder="loginFormPlaceholder.passPlaceholder" />
             </el-form-item>
+            <el-form-item prop="verifyCode" v-if="type=='forget'">
+              <el-input v-model="loginForm.verifyCode" style="width: 280px;margin-right:10px;"
+                :placeholder="loginFormPlaceholder.verifyCodePlaceholder" />
+              <el-button type="primary" @click="getVerifyCode" :disabled="isCodeDisabled">{{verifyCodeTip}}</el-button>
+            </el-form-item>
             <el-form-item v-if="type=='login'">
               <el-button @click="clear('forget')">忘记密码</el-button>
               <el-button @click="clear('register')">注册</el-button>
@@ -65,13 +70,16 @@
       }
 
       return {
+        isCodeDisabled: false,
+        verifyCodeTip: "获取验证码",
         logoUrl: "/logo.webp",
         type: "login", //取值：register,forget
         loginForm: {
           name: "",
           email: "",
           password: "",
-          confirmPassword: ""
+          confirmPassword: "",
+          verifyCode: Number
         },
         initLoginForm: {
           name: "",
@@ -83,7 +91,8 @@
           namePlaceholder: "3-10个英文或中文字符",
           emailPlaceholder: "请输入正确邮箱地址",
           passPlaceholder: "6-12个英文和数字组成的字符",
-          confirmpassPlaceholder: "密码错误，请重新输入"
+          confirmpassPlaceholder: "密码错误，请重新输入",
+          verifyCodePlaceholder: "请输入邮件验证码"
         },
         rules: {
           name: [{
@@ -127,6 +136,11 @@
               trigger: ['blur', 'change']
             },
           ],
+          verifyCode: [{
+            required: true,
+            message: require,
+            trigger: 'blur'
+          }]
         }
       }
     },
@@ -139,6 +153,34 @@
       }
     },
     methods: {
+      getVerifyCode() {
+        let _this = this
+        _this.$refs.loginForm.validateField('email', valid => {
+          if (valid) {
+            _this.sendMail()
+           // _this.setVerifyCodeTip()
+          }
+        })
+      },
+      sendMail() {
+        let param = {
+          email: this.loginForm.email
+        }
+        this.$axios.post('/sendmail', param)
+      },
+      setVerifyCodeTip() {
+        let time = 60
+        let getTip = setInterval(() => {
+          time--
+          this.verifyCodeTip = `请${time}s之后再试`
+          this.isCodeDisabled = true
+          if (time == 0) {
+            this.verifyCodeTip = '获取验证码'
+            this.isCodeDisabled = false
+            clearInterval(getTip)
+          }
+        }, 1000)
+      },
       login() {
         let _this = this
         _this.$refs.loginForm.validate((valid) => {
@@ -151,7 +193,7 @@
 
             _this.$axios.post('/login', param).then((data) => {
               if (data.success) {
-                storage.set('userInfo',data.data.userInfo)
+                storage.set('userInfo', data.data.userInfo)
                 _this.$router.push('/user/list')
                 _this.clear()
               } else {
