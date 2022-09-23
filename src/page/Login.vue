@@ -158,10 +158,11 @@
         _this.$refs.loginForm.validateField('email', valid => {
           if (valid) {
             _this.sendMail()
-           // _this.setVerifyCodeTip()
+            _this.setVerifyCodeTip()
           }
         })
       },
+
       sendMail() {
         let param = {
           email: this.loginForm.email
@@ -212,23 +213,49 @@
         let _this = this
         _this.$refs.loginForm.validate((valid) => {
           if (valid) {
-            let param = {
-              name: _this.loginForm.name,
-              email: _this.loginForm.email,
-              password: crypto.encrypt(_this.loginForm.password)
+            if (_this.type == 'register') {
+              _this.register()
+            } else if (_this.type == 'forget') {
+              _this.findpass()
             }
-
-            _this.$axios.post('/register', param).then((data) => {
-              this.$message({
-                message: data.message,
-                type: data.success ? 'success' : 'error'
-              })
-              if (data.success) {
-                this.clear('login')
-              }
-            })
           } else {
             return false
+          }
+        })
+      },
+      register() {
+        let _this = this
+        let param = {
+          name: _this.loginForm.name,
+          email: _this.loginForm.email,
+          password: crypto.encrypt(_this.loginForm.password)
+        }
+
+        _this.$axios.post('/register', param).then((data) => {
+          _this.$message({
+            message: data.message,
+            type: data.success ? 'success' : 'error'
+          })
+          if (data.success) {
+            _this.clear('login')
+          }
+        })
+      },
+      findpass() {
+        let _this = this
+        let param = {
+          email: _this.loginForm.email,
+          password: crypto.encrypt(_this.loginForm.password),
+          verifyCode: _this.loginForm.verifyCode
+        }
+
+        _this.$axios.post('/findpass', param).then((data) => {
+          _this.$message({
+            message: data.message,
+            type: data.success ? 'success' : 'error'
+          })
+          if (data.success) {
+            _this.clear('login')
           }
         })
       },

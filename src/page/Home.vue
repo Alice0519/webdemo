@@ -5,19 +5,19 @@
                 <el-image style="width: 50px;" :src="logoUrl" />
             </el-col>
             <el-col :span="2" :offset="20">
-                <div class="grid-content bg-purple-light">
+                <div>
                     <el-dropdown>
                         <el-image style="width: 50px;border-radius: 100%;cursor: pointer;" :src="avatarUrl" />
                         <template #dropdown>
-                            <el-dropdown-menu>
-                                <el-dropdown-item>黄金糕</el-dropdown-item>
-                                <el-dropdown-item>狮子头</el-dropdown-item>
-                                <el-dropdown-item>螺蛳粉</el-dropdown-item>
-                                <el-dropdown-item disabled>双皮奶</el-dropdown-item>
-                                <el-dropdown-item divided>蚵仔煎</el-dropdown-item>
-                            </el-dropdown-menu>
+                            <el-descriptions :column="1" style="padding:20px;">
+                                <el-descriptions-item label="账号:">11</el-descriptions-item>
+                                <el-descriptions-item label="邮箱:">111@183.com</el-descriptions-item>
+                                <el-descriptions-item style="margin-top:20px;">
+                                    <el-button>上传头像</el-button>
+                                    <el-button @click="logout" type="primary">退出登录</el-button>
+                                </el-descriptions-item>
+                            </el-descriptions>
                         </template>
-
                     </el-dropdown>
                 </div>
             </el-col>
@@ -32,9 +32,12 @@
                                 <template #title>
                                     <span>{{menu.meta.title}}</span>
                                 </template>
-                                <el-menu-item :route="menu.path + '/' + sub_menu.path" :index = "menu.path + '/' + sub_menu.path"  v-for="sub_menu in menu.children">{{sub_menu.meta.title}}</el-menu-item>
+                                <el-menu-item :route="menu.path + '/' + sub_menu.path"
+                                    :index="menu.path + '/' + sub_menu.path" v-for="sub_menu in menu.children">
+                                    {{sub_menu.meta.title}}</el-menu-item>
                             </el-sub-menu>
-                            <el-menu-item v-else :route="menu.path" :index ="menu.path" >{{menu.meta.title}}</el-menu-item>
+                            <el-menu-item v-else :route="menu.path" :index="menu.path">{{menu.meta.title}}
+                            </el-menu-item>
                         </template>
                     </el-menu>
                 </el-col>
@@ -47,6 +50,7 @@
 </template>
 
 <script>
+    import storage from '../utils/storage'
     export default {
         data() {
             return {
@@ -64,6 +68,11 @@
             }
         },
         methods: {
+            logout(){
+                debugger
+                storage.remove('userInfo')
+                this.$router.push('/login')
+            },
             handleOpen(key, keyPath) {
                 console.log(key, keyPath)
             },
@@ -72,7 +81,7 @@
             }
         },
         created() {
-           
+
         }
     }
 </script>
