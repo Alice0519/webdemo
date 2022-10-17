@@ -10,10 +10,12 @@
                         <el-image style="width: 50px;border-radius: 100%;cursor: pointer;" :src="avatarUrl" />
                         <template #dropdown>
                             <el-descriptions :column="1" style="padding:20px;">
-                                <el-descriptions-item label="账号:">11</el-descriptions-item>
-                                <el-descriptions-item label="邮箱:">111@183.com</el-descriptions-item>
+                                <el-descriptions-item label="账号:">{{userInfo.name}}</el-descriptions-item>
+                                <el-descriptions-item label="邮箱:">{{userInfo.email}}</el-descriptions-item>
                                 <el-descriptions-item style="margin-top:20px;">
-                                    <el-button>上传头像</el-button>
+                                    <el-upload style="display:inline-flex;margin-right:10px;" headers="{enctype:'multipart/form-data'}" name="avatar" show-file-list="false" :data = "{name:userInfo.name}" action="/upload" :on-success="handleAvatarSuccess">
+                                        <el-button>上传头像</el-button>
+                                    </el-upload>
                                     <el-button @click="logout" type="primary">退出登录</el-button>
                                 </el-descriptions-item>
                             </el-descriptions>
@@ -54,6 +56,7 @@
     export default {
         data() {
             return {
+                userInfo:JSON.parse(storage.get('userInfo')),
                 logoUrl: "/logo.webp",
                 avatarUrl: "/user.svg"
             }
@@ -68,20 +71,18 @@
             }
         },
         methods: {
-            logout(){
-                debugger
+            handleAvatarSuccess(response,uploadFile){
+              this.avatarUrl = response.data.path
+              this.userInfo.avatar = this.avatarUrl
+              storage.set('userInfo',this.userInfo)
+            },
+            logout() {
                 storage.remove('userInfo')
                 this.$router.push('/login')
-            },
-            handleOpen(key, keyPath) {
-                console.log(key, keyPath)
-            },
-            handleClose(key, keyPath) {
-                console.log(key, keyPath)
             }
         },
         created() {
-
+            this.avatarUrl = this.userInfo.avatar || "/user.svg"
         }
     }
 </script>
