@@ -3,7 +3,9 @@
         <el-input v-model="inputVal" style="width:240px;margin-right:10px;" placeholder="输入账户" />
         <el-button type="primary" @click="search">查找</el-button>
         <el-button type="primary" @click="add" link>添加</el-button>
-        <el-button type="primary" @click="add">导入</el-button>
+        <el-upload style="display:inline-flex;margin:0 10px;" accept=".xlsx" headers="{enctype:'multipart/form-data'}" name="file" show-file-list="false" action="/import" :on-success="handleFileSuccess">
+            <el-button>导入</el-button>
+        </el-upload>
         <el-button type="primary" @click="add">导出</el-button>
     </el-row>
     <el-table :data="tableData" style="width: 100%;margin-top:20px;">
@@ -95,6 +97,11 @@
             }
         },
         methods: {
+            handleFileSuccess(response){
+                if(response.success){
+                    this.getData()
+                }               
+            },
             delDialog(id,name) {
                 this.dialogDelVisible = true
                 this.delId = id

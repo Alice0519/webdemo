@@ -3,7 +3,7 @@ const routes = require('koa-router')()
 const fs = require('fs')
 const apis = fs.readdirSync(__dirname + '/api')
 
-let upfile = null
+let upfile = null,importuser = null
 
 const urls = {
     'register': {
@@ -20,11 +20,16 @@ apis.forEach(file => {
         upfile = fun
         return 
     }
+    if (fileName == 'importuser'){
+        importuser = fun
+        return 
+    }
     routes[method](url, fun)
 })
 
 //上传文件配置
 const multer = require('koa-multer')
+const xlsx = require('node-xlsx')
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -47,6 +52,20 @@ routes.post('/upload',upload.single('avatar'), async ctx=>{
         data:{
             path:path.slice(7)
         },
+        message:""
+    }
+})
+
+routes.post('/import',upload.single('file'), async ctx=>{
+    const filename = ctx.req.file.filename,filePath = 'public/' + filename
+    let data = xlsx.parse(filePath)[0].data
+
+    //批量更新数据库
+    await importuser(data)
+    fs.unlinkSync(filePath)
+    ctx.body = {
+        success: true,
+        data:{},
         message:""
     }
 })

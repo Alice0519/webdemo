@@ -267,9 +267,6 @@
         this.loginForm = this.initLoginForm
         this.$refs.loginForm.resetFields()
       }
-    },
-    created() {
-
     }
   }
 </script>
