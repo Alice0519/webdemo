@@ -24,11 +24,11 @@
                 </div>
             </el-col>
         </el-row>
-        <el-row>
-            <el-col :span="8">
-                <el-col :span="12">
+        <el-row class="content">
+            <el-col :span="5" style="background:#545c64;">
+                <el-col>
                     <el-menu router active-text-color="#ffd04b" background-color="#545c64" :default-active="$route.path"
-                        text-color="#fff">
+                        text-color="#fff" style="border-right:0;">
                         <template v-for="menu in menus">
                             <el-sub-menu v-if="menu.children">
                                 <template #title>
@@ -44,7 +44,10 @@
                     </el-menu>
                 </el-col>
             </el-col>
-            <el-col :span="16">
+            <el-col :span="19" style="padding:20px;">
+                <el-breadcrumb separator="/">
+                    <el-breadcrumb-item v-for="route in routes" :to="{ path: route }" :key="route">{{route.meta.title}}</el-breadcrumb-item>
+                </el-breadcrumb>
                 <router-view></router-view>
             </el-col>
         </el-row>
@@ -58,7 +61,13 @@
             return {
                 userInfo:JSON.parse(storage.get('userInfo')),
                 logoUrl: "/logo.webp",
-                avatarUrl: "/user.svg"
+                avatarUrl: "/user.svg",
+                routes:[]
+            }
+        },
+        watch:{
+            $route(to){
+              this.getCurRoutes(to)
             }
         },
         computed: {
@@ -71,6 +80,12 @@
             }
         },
         methods: {
+            getCurRoutes(to){
+              to = to || this.$route
+              if(to.matched.length>0){
+                this.routes = to.matched
+              }
+            },
             handleAvatarSuccess(response,uploadFile){
               this.avatarUrl = response.data.path
               this.userInfo.avatar = this.avatarUrl
@@ -91,5 +106,9 @@
     .home .header {
         height: 80px;
         background-color: #545c64;
+    }
+    .home{ height:100% }
+    .home .content{
+        height:calc(100% - 80px);
     }
 </style>
