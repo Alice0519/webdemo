@@ -1,5 +1,4 @@
 import axios from "axios"
-import storage from './storage'
 
 const _axios = axios.create({
     timeout:3000

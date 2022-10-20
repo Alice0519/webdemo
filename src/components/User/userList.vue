@@ -3,12 +3,13 @@
         <el-input v-model="inputVal" style="width:240px;margin-right:10px;" placeholder="输入账户" />
         <el-button type="primary" @click="search">查找</el-button>
         <el-button type="primary" @click="add" link>添加</el-button>
-        <el-upload style="display:inline-flex;margin:0 10px;" accept=".xlsx" headers="{enctype:'multipart/form-data'}" name="file" show-file-list="false" action="/import" :on-success="handleFileSuccess">
+        <el-upload style="display:inline-flex;margin:0 10px;" accept=".xlsx" headers="{enctype:'multipart/form-data'}"
+            name="file" show-file-list="false" action="/import" :on-success="handleFileSuccess">
             <el-button>导入</el-button>
         </el-upload>
-        <el-button type="primary" @click="add">导出</el-button>
+        <el-button type="primary" @click="exportUser">导出</el-button>
     </el-row>
-    <el-table :data="tableData" style="width: 100%;margin-top:20px;">
+    <el-table :data="tableData" style="width: 100%;margin-top:20px;" @select="select" @select-all="selectAll">
         <el-table-column type="selection" width="100" />
         <el-table-column prop="name" label="账户" width="200" />
         <el-table-column prop="email" label="邮箱" width="340" />
@@ -16,7 +17,8 @@
         <el-table-column label="操作">
             <template #default="scope">
                 <el-button link type="primary" size="small" @click="edit(scope.row)">编辑</el-button>
-                <el-button link type="primary" size="small" @click="delDialog(scope.row.id,scope.row.name)">删除</el-button>
+                <el-button link type="primary" size="small" @click="delDialog(scope.row.id,scope.row.name)">删除
+                </el-button>
             </template>
         </el-table-column>
     </el-table>
@@ -58,6 +60,7 @@
     export default {
         data() {
             return {
+                selectArr: [],
                 inputVal: "",
                 dialogDelVisible: false,
                 loginFormPlaceholder: {
@@ -93,22 +96,49 @@
                 dialogVisible: false,
                 tableData: [],
                 delId: "",
-                delName:""
+                delName: ""
             }
         },
         methods: {
-            handleFileSuccess(response){
-                if(response.success){
-                    this.getData()
-                }               
+            selectAll(selection) {
+                this.selectArr = selection
             },
-            delDialog(id,name) {
+            select(selection) {
+                this.selectArr = selection
+            },
+            exportUser() {
+                //需要转换成的格式：[["hello","223"],["22","23"]]
+                let arr = []
+                if (this.selectArr.length > 0) {
+                    for (let i = 0; i < this.selectArr.length; i++) {
+                        let subArr = [],
+                            selObj = this.selectArr[i]
+                        subArr.push(selObj.name)
+                        subArr.push(selObj.email)
+                        arr.push(subArr)
+                    }
+                    this.$axios.post('/exportuser', arr,{responseType: "blob"}).then((data) => {
+                        const url = URL.createObjectURL(data)
+                        const aLink = document.createElement('a')
+                        aLink.setAttribute('download','user.xlsx')
+                        aLink.setAttribute('href',url)
+                        aLink.click()
+                        document.body.appendChild(aLink)
+                        URL.revokeObjectURL(url)
+                    })
+                }
+            },
+            handleFileSuccess(response) {
+                if (response.success) {
+                    this.getData()
+                }
+            },
+            delDialog(id, name) {
                 this.dialogDelVisible = true
                 this.delId = id
                 this.delName = name
             },
             deleteUser() {
-                console.log(1111,this.delId)
                 this.$axios.post('/deluser', {
                     id: this.delId,
                 }).then((data) => {
